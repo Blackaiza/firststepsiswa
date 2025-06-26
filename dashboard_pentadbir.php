@@ -161,7 +161,6 @@ $admin_name = $_SESSION['username'];
       cursor: pointer;
       display: flex;
       flex-direction: column;
-      min-height: 300px;
     }
 
     .card i {
@@ -191,7 +190,7 @@ $admin_name = $_SESSION['username'];
       box-shadow: 0 8px 24px rgba(13,38,70,0.6);
       transform: translateY(-6px);
     }
-
+  
     .card:hover i {
       color: #f89c2d;
     }
@@ -282,6 +281,41 @@ $admin_name = $_SESSION['username'];
     .cards-section h2 {
       margin-bottom: 30px;
     }
+  @media (max-width: 576px) {
+    .card {
+      min-height: 180px;
+    }
+  }
+  .card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 220px;
+}
+.d-flex {
+  display: flex !important;
+}
+
+.flex-fill {
+  flex: 1 1 auto !important;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+.col-md-3 {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+}
+
 
   </style>
 </head>
@@ -302,33 +336,41 @@ $admin_name = $_SESSION['username'];
   </div>
 </div>
 
-<!-- Feature Cards -->
-<section class="cards-section container">
+<!-- Feature Cards --><section class="cards-section container">
   <h2 class="text-center fw-bold mb-3" style="color:#0d2646;">Apa Yang Anda Boleh Lakukan</h2>
   <div class="row">
     <div class="col-md-3 col-sm-6 mb-4">
-        <div class="card text-center p-4 shadow-sm" style="border-radius: 15px;">
+    <div class="card h-100">
+      <div class="card text-center p-4 shadow-sm" style="border-radius: 15px;">
         <i class="fas fa-file-alt fa-3x text-primary mb-3"></i>
         <h5>Urus Permohonan</h5>
         <p>Semak dan proses permohonan bantuan pelajar dengan mudah.</p>
       </div>
     </div>
+        </div>
     <div class="col-md-3 col-sm-6 mb-4">
-        <div class="card text-center p-4 shadow-sm" style="border-radius: 15px;">
+      <div class="card h-100">
+      <div class="card text-center p-4 shadow-sm" style="border-radius: 15px;">
         <i class="fas fa-box-open fa-3x text-primary mb-3"></i>
         <h5>Inventori Bantuan</h5>
         <p>Kemaskini dan pantau stok bantuan daripada penderma.</p>
       </div>
+          </div>
+
     </div>
     <div class="col-md-3 col-sm-6 mb-4">
-        <div class="card text-center p-4 shadow-sm" style="border-radius: 15px;">
+        <div class="card h-100">
+      <div class="card text-center p-4 shadow-sm" style="border-radius: 15px;">
         <i class="fas fa-chart-bar fa-3x text-primary mb-3"></i>
         <h5>Statistik Sistem</h5>
         <p>Lihat data dan laporan prestasi permohonan & penajaan.</p>
       </div>
+          </div>
+
     </div>
     <div class="col-md-3 col-sm-6 mb-4">
-        <div class="card text-center p-4 shadow-sm" style="border-radius: 15px;">
+        <div class="card h-100">
+      <div class="card text-center p-4 shadow-sm" style="border-radius: 15px;">
         <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
         <h5>Daftar Penderma</h5>
         <p>Tambah akaun penderma baharu dan rekod jenis bantuan.</p>

@@ -25,8 +25,23 @@ $where = "WHERE fld_status IN ('sedang diproses', 'diluluskan', 'ditolak', 'berj
 
 if ($search) {
     $safe = mysqli_real_escape_string($conn, $search);
-    $where .= " AND (fld_name LIKE '%$safe%' OR fld_matric_no LIKE '%$safe%' OR fld_category LIKE '%$safe%')";
+    $where .= " AND (
+        fld_name LIKE '%$safe%' OR
+        fld_matric_no LIKE '%$safe%' OR
+        fld_category LIKE '%$safe%' OR
+        fld_status LIKE '%$safe%' OR
+        fld_email LIKE '%$safe%' OR
+        fld_phone LIKE '%$safe%' OR
+        fld_request_date LIKE '%$safe%'
+    )";
 }
+
+$sortableColumns = ['fld_name', 'fld_matric_no', 'fld_phone', 'fld_email', 'fld_category', 'fld_status', 'fld_request_date'];
+$currentSort = $_GET['sort'] ?? '';
+$currentOrder = $_GET['order'] ?? 'desc';
+$nextOrder = ($currentOrder === 'asc') ? 'desc' : 'asc';
+$sort = in_array($currentSort, $sortableColumns) ? $currentSort : 'fld_request_id';
+$order = ($currentOrder === 'asc') ? 'ASC' : 'DESC';
 
 // Count total records
 $totalSql = "SELECT COUNT(*) FROM tbl_requests $where";
@@ -36,17 +51,19 @@ $totalPages = ceil($totalRows / $limit);
 
 // Get data
 $sql = "
-  SELECT *, 
+  SELECT *,
     DATEDIFF(CURDATE(), fld_request_date) AS days_pending
   FROM tbl_requests
   $where
-  ORDER BY 
-    CASE 
+  ORDER BY
+    -- Priority order for pending applications (7+ days first, then 3+ days)
+    CASE
       WHEN fld_status = 'sedang diproses' AND DATEDIFF(CURDATE(), fld_request_date) >= 7 THEN 1
       WHEN fld_status = 'sedang diproses' AND DATEDIFF(CURDATE(), fld_request_date) >= 3 THEN 2
       ELSE 3
     END,
-    fld_request_id DESC
+    -- After prioritizing, apply the user-defined sorting
+    $sort $order
   LIMIT $offset, $limit
 ";
 
@@ -275,6 +292,15 @@ if ($sendEmail && $lastSent !== $today) {
     background-color: rgba(255, 255, 255, 0.5); /* adjust to add faded white overlay */
     z-index: -1;
   }
+    th a {
+      color: white !important;
+      text-decoration: none;
+    }
+
+    th a:hover {
+      text-decoration: underline;
+    }
+
   </style>
 </head>
 <body>
@@ -321,7 +347,7 @@ if ($sendEmail && $lastSent !== $today) {
     <!-- Search Box -->
     <form method="GET" class="form-inline text-right mb-3">
       <div class="input-group">
-        <input type="text" name="search" class="form-control" placeholder="Cari pelajar..." value="<?= htmlspecialchars($search); ?>">
+        <input type="text" name="search" class="form-control" placeholder="Cari" value="<?= htmlspecialchars($search); ?>">
         <span class="input-group-btn">
           <button class="btn btn-primary" type="submit"><i class="glyphicon glyphicon-search"></i></button>
         </span>
@@ -331,17 +357,17 @@ if ($sendEmail && $lastSent !== $today) {
     <div class="table-responsive">
       <table class="table table-bordered table-hover mt-3">
         <thead>
-          <tr>
-            <th>Nama Pelajar</th>
-            <th>No Matrik</th>
-            <th>No Telefon</th>
-            <th>E-mel</th>
-            <th>Jenis Bantuan</th>
-            <th>Status Permohonan</th>
-            <th>Tarikh Permohonan</th> 
-            <th>Tindakan</th> 
-          </tr>
-        </thead>
+        <tr>
+          <th><a href="?sort=fld_name&order=<?= $nextOrder ?>&search=<?= urlencode($search) ?>&page=<?= $page ?>">Nama Pelajar <?= ($currentSort === 'fld_name') ? ($currentOrder === 'asc' ? '▲' : '▼') : '' ?></a></th>
+          <th><a href="?sort=fld_matric_no&order=<?= $nextOrder ?>&search=<?= urlencode($search) ?>&page=<?= $page ?>">No Matrik <?= ($currentSort === 'fld_matric_no') ? ($currentOrder === 'asc' ? '▲' : '▼') : '' ?></a></th>
+          <th><a href="?sort=fld_phone&order=<?= $nextOrder ?>&search=<?= urlencode($search) ?>&page=<?= $page ?>">No Telefon <?= ($currentSort === 'fld_phone') ? ($currentOrder === 'asc' ? '▲' : '▼') : '' ?></a></th>
+          <th><a href="?sort=fld_email&order=<?= $nextOrder ?>&search=<?= urlencode($search) ?>&page=<?= $page ?>">E-mel <?= ($currentSort === 'fld_email') ? ($currentOrder === 'asc' ? '▲' : '▼') : '' ?></a></th>
+          <th><a href="?sort=fld_category&order=<?= $nextOrder ?>&search=<?= urlencode($search) ?>&page=<?= $page ?>">Jenis Bantuan <?= ($currentSort === 'fld_category') ? ($currentOrder === 'asc' ? '▲' : '▼') : '' ?></a></th>
+          <th><a href="?sort=fld_status&order=<?= $nextOrder ?>&search=<?= urlencode($search) ?>&page=<?= $page ?>">Status Permohonan <?= ($currentSort === 'fld_status') ? ($currentOrder === 'asc' ? '▲' : '▼') : '' ?></a></th>
+          <th><a href="?sort=fld_request_date&order=<?= $nextOrder ?>&search=<?= urlencode($search) ?>&page=<?= $page ?>">Tarikh Permohonan <?= ($currentSort === 'fld_request_date') ? ($currentOrder === 'asc' ? '▲' : '▼') : '' ?></a></th>
+          <th>Tindakan</th>
+        </tr>
+      </thead>
         <tbody>
           <?php if (mysqli_num_rows($result) > 0): ?>
             <?php while($row = mysqli_fetch_assoc($result)): ?>
@@ -375,14 +401,14 @@ if ($sendEmail && $lastSent !== $today) {
                       if ($status === 'diluluskan') {
                           echo '<span class="label label-success">Diluluskan</span>';
                       } elseif ($status === 'ditolak') {
-                          echo '<span class="label label-warning">Ditolak</span>';
+                          echo '<span class="label" style="background-color:#9e9e9e; color:white;">Ditolak</span>';
                       } elseif ($status === 'berjaya') {
                           echo '<span class="label label-primary">Berjaya</span>';
                       } else {
                           if ($daysPending >= 7) {
                               echo '<span class="label label-danger">Sedang diproses (7+ hari)</span>';
                           } elseif ($daysPending >= 3) {
-                              echo '<span class="label label-warning">Sedang diproses (3+ hari)</span>';
+                              echo '<span class="label" style="background-color:#ff9800; color:white;">Sedang diproses (3+ hari)</span>';
                           } else {
                               echo '<span class="label" style="background-color:#ffc107;">Sedang diproses</span>';
                           }

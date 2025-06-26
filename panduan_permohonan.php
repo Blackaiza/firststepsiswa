@@ -127,9 +127,9 @@ session_start();
       <h4>📦 Bantuan yang Ditawarkan</h4>
       <p>Setiap pelajar yang layak akan menerima satu set bantuan lengkap yang merangkumi:</p>
       <ul>
-        <li>📱 Peralatan Digital (laptop bersama charger)</li>
-        <li>📚 Bahan Pembelajaran (buku rujukan, alat tulis)</li>
-        <li>🧼 Keperluan Diri (barangan penjagaan diri, makanan asas)</li>
+        <li>📱 Peralatan Digital (komputer riba bersama mengecas dan bag)</li>
+        <li>📚 Bahan Pembelajaran (alat tulis, buku nota dan kalkulator)</li>
+        <li>🧼 Keperluan Diri (barangan penjagaan diri)</li>
       </ul>
     </div>
 

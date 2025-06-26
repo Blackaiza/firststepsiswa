@@ -24,7 +24,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $kuantitiList = $_POST['kuantiti'];  // Array of corresponding quantities
 
     // Insert donations into tbl_donations
-    $stmtDonation = $conn->prepare("INSERT INTO tbl_donations (fld_donor_id, fld_category, fld_quantity, fld_donation_date) VALUES (?, ?, ?, NOW())");
+    $stmtDonation = $conn->prepare("INSERT INTO tbl_donations (fld_donor_id, fld_category, fld_quantity, fld_donation_date) 
+                                    VALUES (?, ?, ?, NOW()) 
+                                    ON DUPLICATE KEY UPDATE fld_quantity = fld_quantity + VALUES(fld_quantity)");
 
     for ($i = 0; $i < count($bantuanList); $i++) {
         $category = $bantuanList[$i];

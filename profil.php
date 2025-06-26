@@ -1,6 +1,12 @@
 <?php
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
+
 session_start();
 include('database.php'); // Sambungan ke pangkalan data
+
+$showSuccessPopup = false;
 
 $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
 $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -20,9 +26,15 @@ $stmt->bindParam(':user_id', $user_id);
 $stmt->execute();
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Clear success message to avoid it appearing on the profile page
 if (isset($_SESSION['success'])) {
-    unset($_SESSION['success']);
+    $showSuccessPopup = true; // Show the popup if the success message is set
+    unset($_SESSION['success']); // Clear the message after showing
+}
+
+// Display error message if it's set
+if (isset($_SESSION['error'])) {
+    $errorMessage = $_SESSION['error'];
+    unset($_SESSION['error']); // Clear error message after showing
 }
 
 if (isset($_POST['update'])) {
@@ -46,6 +58,9 @@ if (isset($_POST['update'])) {
         $stmt->execute();
 
         $_SESSION['success'] = "Kemaskini Berjaya";
+        header("Location: profil.php?success=1"); // Redirect to the same page to show updated data
+        exit();
+
     } catch (PDOException $e) {
         $_SESSION['error'] = "Ralat: " . $e->getMessage();
     }
@@ -134,9 +149,6 @@ if (isset($_POST['update'])) {
       text-decoration: underline;
     }
 
-    .alert {
-      text-align: left;
-    }
      body::before {
       content: "";
       position: fixed;
@@ -168,14 +180,6 @@ if (isset($_POST['update'])) {
 <div class="profile-container">
   <h3>Mengurus Profil Akaun</h3>
 
-  <?php if (isset($_SESSION['success'])): ?>
-    <div class="alert alert-success"><?php echo $_SESSION['success']; unset($_SESSION['success']); ?></div>
-  <?php endif; ?>
-
-  <?php if (isset($_SESSION['error'])): ?>
-    <div class="alert alert-danger"><?php echo $_SESSION['error']; unset($_SESSION['error']); ?></div>
-  <?php endif; ?>
-
   <form method="POST" action="">
     <label>Nama</label>
     <input type="text" name="name" class="form-control" value="<?= htmlspecialchars($user['fld_name']) ?>" required>
@@ -201,6 +205,16 @@ if (isset($_POST['update'])) {
     }
   ?>" class="back-link">← Kembali ke Laman Utama</a>
 </div>
+
+<script>
+  if (new URLSearchParams(window.location.search).get('success') === '1') {
+    alert("Kemaskini Berjaya! Maklumat anda telah dikemaskini dengan jayanya.");
+    // Remove ?success=1 from URL
+    const url = new URL(window.location);
+    url.searchParams.delete('success');
+    window.history.replaceState({}, document.title, url.toString());
+  }
+</script>
 
 </body>
 </html>

@@ -197,7 +197,10 @@ while ($row = mysqli_fetch_assoc($monthlyData)) {
                         '#FF5733', '#33FF57', '#3357FF', '#FF33A6', '#FFD733', // Customize your colors here
                         '#33FFBD', '#7D33FF', '#FF3333', '#33AFFF', '#33FF99'
                     ],
-                    borderColor: '#0056b3',
+                  borderColor: [
+                      '#FF5733', '#33FF57', '#3357FF', '#FF33A6', '#FFD733',
+                      '#33FFBD', '#7D33FF', '#FF3333', '#33AFFF', '#33FF99'
+                  ],
                     borderWidth: 1
                 }]
             },
@@ -258,7 +261,11 @@ var monthlyChart = new Chart(ctx2, {
                 '#33FFBD', '#7D33FF', '#FF3333', '#33AFFF', '#33FF99',
                 '#FFAA33', '#00CC99'
             ],
-            borderColor: '#28a745',
+          borderColor: [
+              '#FF5733', '#33FF57', '#3357FF', '#FF33A6', '#FFD733',
+              '#33FFBD', '#7D33FF', '#FF3333', '#33AFFF', '#33FF99',
+              '#FFAA33', '#00CC99'
+          ],
             borderWidth: 2
         }]
     },

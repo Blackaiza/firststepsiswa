@@ -26,7 +26,7 @@ $edit_deadline = isset($request['fld_edit_dateline']) && $request['fld_edit_date
 
 $now = new DateTime();
 
-// ✅ Apply logic here: only allow edit if status = 'sedang diproses' and before deadline
+//  Apply logic here: only allow edit if status = 'sedang diproses' and before deadline
 $allow_edit = ($status === 'sedang diproses') && ($now <= $edit_deadline);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -94,7 +94,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     $_SESSION['success_msg'] = "Ubah suai maklumat permohonan berjaya!";
-
     header("Location: lihat_permohonan.php");
     exit();
 }
@@ -106,7 +105,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   <meta charset="UTF-8">
   <title>Ubah Suai Permohonan</title>
   <link rel="stylesheet" href="css/style.css">
-  <title>Ubah Suai Permohonan</title>
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <style>
 /* Common Background */
@@ -279,7 +277,7 @@ body::before {
 
     <?php else: ?>
     <div class="alert alert-warning mt-4">
-      <strong>Maaf!</strong> Anda tidak boleh lagi menyunting permohonan ini. Tarikh akhir suntingan ialah: <strong><?= $edit_deadline->format('Y-m-d') ?></strong>.
+      <strong>Maaf!</strong> Anda tidak boleh lagi menyunting permohonan ini. Tarikh akhir suntingan ialah: <strong><?= $edit_deadline->format('Y-m-d') ?> atau permohonan anda telah berjaya diproses.</strong>
     </div>
   <button class="btn btn-default btn-back" onclick="window.location.href='borang_permohonan.php'">← Kembali</button>
   <?php endif; ?>
@@ -331,8 +329,17 @@ document.querySelector('form').addEventListener('submit', function(e) {
 });
 </script>
 
+<script>
+  // Check if the success message is set in the session and display a popup
+  <?php if (isset($_SESSION['success_msg'])): ?>
+    alert("<?= $_SESSION['success_msg']; ?>");
+    <?php unset($_SESSION['success_msg']); ?> // Clear the message after displaying
+  <?php endif; ?>
+</script>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js"></script>
+
 
 </body>
 </html>

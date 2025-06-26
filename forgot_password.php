@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->execute([$token, $expiry, $emel]);
 
         // Pautan reset password
-        $reset_link = "http://localhost/FirstStepSiswa/reset_password.php?token=" . $token;
+        $reset_link = "http://ain.aizathami.website/reset_password.php?token=" . $token;
 
         // Hantar email dengan PHPMailer
         $mail = new PHPMailer(true);
@@ -52,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $mail->Port = 587;
 
             // Tetapan email
-            $mail->setFrom('a193792@siswa.ukm.edu.my', 'First Step Siswa Support');
+            $mail->setFrom('nabilaha645@gmail.com', 'First Step Siswa Support');
             $mail->addAddress($emel);
             $mail->Subject = "Reset Kata Laluan - First Step Siswa";
             $mail->Body = "Klik link berikut untuk reset kata laluan anda: " . $reset_link;

@@ -245,7 +245,9 @@ $name = $_SESSION['username'];
     .tentang-section p {
       color: #000 !important;
     }
-
+    .card {
+      min-height: 220px;
+    }
     section.cards-section {
       padding: 40px 15px 60px; /* was 60px 15px 80px */
     }
@@ -267,7 +269,29 @@ $name = $_SESSION['username'];
     .card:active p {
       color: #fff !important;
     }
-  
+    @media (max-width: 576px) {
+  .carousel-caption h1 {
+    font-size: 1.5rem;
+  }
+
+  .carousel-caption p {
+    font-size: 1rem;
+  }
+
+  .card h5 {
+    font-size: 1.1rem;
+  }
+
+  .card p {
+    font-size: 0.9rem;
+  }
+}
+@media (max-width: 576px) {
+  #backgroundCarousel {
+    height: 300px;
+  }
+}
+
 
   </style>
 </head>
@@ -296,35 +320,43 @@ $name = $_SESSION['username'];
   </div>
 
   <!-- Features section -->
-  <section class="cards-section container">
+<section class="cards-section container-fluid">
 <h2 class="text-center fw-bold mb-3" style="color:#0d2646;">Apa Yang Anda Boleh Lakukan</h2>
     <div class="row">
       <div class="col-md-3 col-sm-6 mb-4">
+        <div class="card h-100">
         <div class="card text-center p-4 shadow-sm" style="border-radius: 15px;">
           <i class="fas fa-database fa-2x text-primary mb-3"></i>
           <h5 class="font-weight-bold">Permohonan Bantuan</h5>
           <p class="text-muted">Sistem menyimpan rekod permohonan bantuan pelajar bagi rujukan dan audit masa hadapan.</p>
         </div>
+        </div>
       </div>
       <div class="col-md-3 col-sm-6 mb-4">
+        <div class="card h-100">
         <div class="card text-center p-4 shadow-sm" style="border-radius: 15px;">
           <i class="fas fa-clipboard-check fa-2x text-primary mb-3"></i>
           <h5 class="font-weight-bold">Status Permohonan</h5>
           <p class="text-muted">Pelajar boleh menyemak status terkini permohonan bantuan secara dalam talian.</p>
         </div>
+          </div>
       </div>
       <div class="col-md-3 col-sm-6 mb-4">
+        <div class="card h-100">
         <div class="card text-center p-4 shadow-sm" style="border-radius: 15px;">
           <i class="fas fa-book-open fa-2x text-primary mb-3"></i>
           <h5 class="font-weight-bold">Panduan Permohonan</h5>
           <p class="text-muted">Disediakan panduan langkah demi langkah untuk memudahkan pelajar membuat permohonan bantuan.</p>
         </div>
+        </div>
       </div>
       <div class="col-md-3 col-sm-6 mb-4">
+        <div class="card h-100">
         <div class="card text-center p-4 shadow-sm" style="border-radius: 15px;">
           <i class="fas fa-question-circle fa-2x text-primary mb-3"></i>
           <h5 class="font-weight-bold">Soalan Lazim</h5>
           <p class="text-muted">Maklumat bantuan dan jawapan kepada soalan lazim berhubung sistem dan permohonan bantuan.</p>
+        </div>
         </div>
       </div>
     </div>

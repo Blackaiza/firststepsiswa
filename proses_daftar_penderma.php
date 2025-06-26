@@ -1,7 +1,8 @@
 <?php
-include_once 'database.php';
 session_start();
 date_default_timezone_set('Asia/Kuala_Lumpur');
+
+include_once 'database.php'; // Database connection
 
 // Ensure only admin can access the page
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'pentadbir') {
@@ -21,36 +22,49 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $bantuanList = $_POST['bantuan'];
     $kuantitiList = $_POST['kuantiti'];
 
-    // Validation: Ensure passwords match
-    if ($password !== $confirm) {
-        echo "<script>alert('Kata laluan tidak sepadan!'); window.history.back();</script>";
+    // Validate input lengths and formats
+    if (strlen($name) < 3 || strlen($name) > 100) {
+        $_SESSION['error'] = "Nama organisasi mestilah antara 3 hingga 100 aksara.";
+        echo "<script>window.location.href = 'daftar_penderma.php';</script>";
         exit();
     }
 
-    // Check if username already exists
-    $checkUsername = $conn->prepare("SELECT COUNT(*) FROM tbl_users WHERE fld_username = ?");
-    $checkUsername->bind_param("s", $username);
-    $checkUsername->execute();
-    $checkUsernameResult = $checkUsername->get_result();
-    $row = $checkUsernameResult->fetch_row();
+    if (strlen($username) < 4 || strlen($username) > 20 || !preg_match("/^[a-zA-Z0-9_]+$/", $username)) {
+        $_SESSION['error'] = "Nama pengguna mestilah antara 4 hingga 20 aksara dan hanya boleh mengandungi huruf, nombor, dan garis bawah (_).";
+        echo "<script>window.location.href = 'daftar_penderma.php';</script>";
+        exit();
+    }
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $_SESSION['error'] = "Sila masukkan e-mel yang sah.";
+        echo "<script>window.location.href = 'daftar_penderma.php';</script>";
+        exit();
+    }
+
+    if ($password !== $confirm) {
+        $_SESSION['error'] = "Kata laluan tidak sepadan!";
+        echo "<script>window.location.href = 'daftar_penderma.php';</script>";
+        exit();
+    }
+
+    // Check if the username or email already exists in the database
+    $checkUnique = $conn->prepare("SELECT COUNT(*) FROM tbl_users WHERE fld_username = ? OR fld_email = ?");
+    $checkUnique->bind_param("ss", $username, $email);
+    $checkUnique->execute();
+    $checkUniqueResult = $checkUnique->get_result();
+    $row = $checkUniqueResult->fetch_row();
 
     if ($row[0] > 0) {
-        // Username is taken, display an error message
-        $_SESSION['error'] = "Penderma telah didaftarkan";
-
-        var_dump($_SESSION);  // This will print out the session content
-
-        echo "<script>window.history.back();</script>";
+        $_SESSION['error'] = "Nama pengguna atau e-mel telah didaftarkan.";
+        echo "<script>window.location.href = 'daftar_penderma.php';</script>";
         exit();
-        unset($_SESSION['error']);
-
     }
 
     // Insert into tbl_users (donor account)
     $insertUser = $conn->prepare("INSERT INTO tbl_users (fld_name, fld_username, fld_email, fld_phone, fld_password, fld_role) 
                                   VALUES (?, ?, ?, ?, ?, 'penderma')");
     $insertUser->bind_param("sssss", $name, $username, $email, $phone, $password);
-    
+
     if ($insertUser->execute()) {
         $newUserId = $insertUser->insert_id;
 
@@ -66,7 +80,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             // Sanitize inputs for donations
             $stmtDonation->bind_param("isi", $newUserId, $category, $qty);
             if (!$stmtDonation->execute()) {
-                echo "<script>alert('Ralat semasa menambah bantuan!'); window.history.back();</script>";
+                $_SESSION['error'] = "Ralat semasa menambah bantuan!";
+                echo "<script>window.location.href = 'daftar_penderma.php';</script>";
                 exit();
             }
 
@@ -77,10 +92,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $checkInventoryStmt->store_result();
 
             if ($checkInventoryStmt->num_rows > 0) {
-                // If item exists, update the quantity in inventory
-                $updateInventoryStmt = $conn->prepare("UPDATE tbl_inventory SET fld_quantity = fld_quantity + ? WHERE fld_category = ?");
-                $updateInventoryStmt->bind_param("is", $qty, $category);
+                // If item exists, update quantity, donor, and timestamp
+                $updateInventoryStmt = $conn->prepare("
+                    UPDATE tbl_inventory 
+                    SET fld_quantity = fld_quantity + ?, fld_donor_id = ?, fld_last_updated = NOW() 
+                    WHERE fld_category = ?
+                ");
+                $updateInventoryStmt->bind_param("iis", $qty, $newUserId, $category);
                 $updateInventoryStmt->execute();
+
             } else {
                 // If item doesn't exist, insert a new entry into inventory
                 $insertInventoryStmt = $conn->prepare("INSERT INTO tbl_inventory (fld_category, fld_quantity, fld_donor_id, fld_last_updated) 
@@ -94,7 +114,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         echo "<script>alert('Pendaftaran berjaya! Penajaan baru telah ditambah dan inventori dikemaskini.'); window.location.href='daftar_penderma.php';</script>";
     } else {
         // Error message if user registration fails
-        echo "<script>alert('Ralat semasa mendaftar penderma!'); window.history.back();</script>";
+        $_SESSION['error'] = "Ralat semasa mendaftar penderma!";
+        echo "<script>window.location.href = 'daftar_penderma.php';</script>";
     }
 }
 ?>

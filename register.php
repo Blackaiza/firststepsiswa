@@ -15,17 +15,34 @@ if (isset($_POST['register'])) {
     $confirm_password = $_POST['confirm_password'];
     $role = 'pelajar'; // Tetapkan peranan pelajar secara lalai
 
-    if ($password !== $confirm_password) {
+    if (!preg_match('/@siswa\.ukm\.edu\.my$/', $email)) {
+        $_SESSION['error'] = "Hanya e-mel @siswa.ukm.edu.my sahaja dibenarkan!";
+    } elseif ($password !== $confirm_password) {
         $_SESSION['error'] = "Kata laluan tidak sepadan!";
     } else {
-        // Semak jika nama pengguna telah wujud
-        $check = $conn->prepare("SELECT COUNT(*) FROM tbl_users WHERE fld_username = :username");
-        $check->bindParam(':username', $username);
-        $check->execute();
 
-        if ($check->fetchColumn() > 0) {
+        // Semak kewujudan nama pengguna, emel, dan nombor matrik
+        $checkUsername = $conn->prepare("SELECT COUNT(*) FROM tbl_users WHERE fld_username = :username");
+        $checkUsername->bindParam(':username', $username);
+        $checkUsername->execute();
+
+        $checkEmail = $conn->prepare("SELECT COUNT(*) FROM tbl_users WHERE fld_email = :email");
+        $checkEmail->bindParam(':email', $email);
+        $checkEmail->execute();
+
+        $checkMatric = $conn->prepare("SELECT COUNT(*) FROM tbl_users WHERE fld_matric_no = :matric_no");
+        $checkMatric->bindParam(':matric_no', $matric_no);
+        $checkMatric->execute();
+
+        if ($checkUsername->fetchColumn() > 0) {
             $_SESSION['error'] = "Nama pengguna telah didaftarkan. Sila pilih yang lain.";
-        } else {
+        } elseif ($checkEmail->fetchColumn() > 0) {
+            $_SESSION['error'] = "E-mel telah digunakan. Sila guna e-mel lain.";
+        } elseif ($checkMatric->fetchColumn() > 0) {
+            $_SESSION['error'] = "No Matrik telah berdaftar. Sila semak semula.";
+        }
+        else {
+
             try {
                 $stmt = $conn->prepare("INSERT INTO tbl_users (fld_name, fld_email, fld_phone, fld_username, fld_matric_no, fld_password, fld_role) 
                                         VALUES (:name, :email, :phone, :username, :matric_no, :password, :role)");
@@ -146,6 +163,25 @@ if (isset($_POST['register'])) {
         padding: 30px 20px;
       }
     }
+   .password-checkbox {
+    display: inline-flex;  /* Align checkbox and label on the same line */
+    align-items: center;   /* Vertically align the checkbox and label */
+    margin-top: 10px;      /* Adjust the space between the input field and the checkbox */
+}
+
+.password-checkbox input {
+    margin-right: 5px; /* Add space between the checkbox and the label */
+    vertical-align: middle; /* Align checkbox properly */
+}
+
+.password-checkbox label {
+    font-size: 14px;
+    color:rgb(10, 10, 10);
+    cursor: pointer;  /* Make the label clickable */
+    white-space: nowrap;  /* Prevent text from wrapping to the next line */
+}
+
+
   </style>
 </head>
 <body>
@@ -163,38 +199,61 @@ if (isset($_POST['register'])) {
     <form method="POST" action="">
       <div class="input-group">
         <label>Nama</label>
-        <input type="text" name="name" placeholder="contoh: Ain Binti Nizam" required />
+        <input type="text" name="name" maxlength="50" placeholder="contoh: Ahmad Bin Ali"
+            pattern="^[A-Za-zÀ-ÿ '.-]+$" 
+            title="Nama hanya boleh mengandungi huruf dan ruang" required />
       </div>
 
       <div class="input-group">
         <label>Nama Pengguna</label>
-        <input type="text" name="username" placeholder="contoh: ainnizam" required />
+      <input type="text" name="username" minlength="4" maxlength="20" placeholder="contoh: ahmadAli2"
+          pattern="^[a-zA-Z0-9_]+$"
+          title="Hanya huruf, nombor dan garis bawah (_) dibenarkan" required />
       </div>
 
       <div class="input-group">
         <label>No Matrik</label>
-        <input type="text" name="matric_no" placeholder="contoh: A123456" pattern="^A\d{6}$" required />
+        <input type="text" name="matric_no" placeholder="contoh: A123456"
+              pattern="^A\d{6}$"
+              title="Mesti bermula dengan A diikuti 6 digit nombor, contoh: A123456" required />
       </div>
 
       <div class="input-group">
         <label>Alamat E-mel</label>
-        <input type="email" name="email" placeholder="contoh@siswa.ukm.edu.my" required />
+        <input type="email" name="email" placeholder="contoh@siswa.ukm.edu.my"
+            pattern="^[a-zA-Z0-9._%+-]+@siswa\.ukm\.edu\.my$"
+            title="Hanya e-mel yang berakhir dengan @siswa.ukm.edu.my dibenarkan" required />
       </div>
 
       <div class="input-group">
         <label>Nombor Telefon</label>
-        <input type="text" name="phone" placeholder="contoh: 0112339562" required />
-      </div>
+        <input type="text" name="phone" maxlength="11" placeholder="contoh: 0123456789"
+            pattern="^01[0-9]{7,8}$"
+            title="Masukkan nombor telefon Malaysia yang sah, contoh: 0123456789" required />
+        </div>
 
       <div class="input-group">
-        <label>Kata Laluan</label>
-        <input type="password" name="password" placeholder="*******" required />
-      </div>
+    <label>Kata Laluan</label>
+    <input type="password" id="password" name="password" placeholder="*******" required
+           pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,20}$"
+           title="Kata laluan mesti 6–20 aksara, sekurang-kurangnya satu huruf dan satu nombor." />
+    <div class="password-checkbox">
+        <input type="checkbox" onclick="togglePassword('password')" id="show-password"> 
+        <label for="show-password">Tunjuk Kata Laluan</label>
+    </div>
+</div>
 
-      <div class="input-group">
-        <label>Sahkan Kata Laluan</label>
-        <input type="password" name="confirm_password" placeholder="*******" required />
-      </div>
+<div class="input-group">
+    <label>Sahkan Kata Laluan</label>
+    <input type="password" id="confirm_password" name="confirm_password" placeholder="*******" required
+           pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,20}$"
+           title="Masukkan semula kata laluan dengan betul." />
+    <div class="password-checkbox">
+        <input type="checkbox" onclick="togglePassword('confirm_password')" id="show-confirm-password">
+        <label for="show-confirm-password">Tunjuk Kata Laluan</label>
+    </div>
+</div>
+
 
       <button type="submit" name="register" class="register-btn">Daftar</button>
     </form>
@@ -204,5 +263,19 @@ if (isset($_POST['register'])) {
     </div>
   </div>
 
+<script>
+function togglePassword(fieldId) {
+    var passwordField = document.getElementById(fieldId);
+
+    // Toggle the password visibility
+    if (passwordField.type === "password") {
+        passwordField.type = "text";
+    } else {
+        passwordField.type = "password";
+    }
+}
+
+</script>
+  
 </body>
 </html>

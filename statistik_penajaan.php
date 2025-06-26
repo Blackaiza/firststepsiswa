@@ -189,7 +189,7 @@ foreach ($categories as $cat) {
             label: 'Jumlah Permohonan',
             data: values,
             backgroundColor: barColors,
-            borderColor: '#0056b3',
+            borderColor: barColors,
             borderWidth: 1
         }]
     },

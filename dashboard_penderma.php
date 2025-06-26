@@ -105,6 +105,8 @@ $donor_name = $_SESSION['username'];
         position: relative;
         height: 500px;
         overflow: hidden;
+        padding-top: 70px;
+
       }
 
       #backgroundCarousel .item {
@@ -157,16 +159,15 @@ $donor_name = $_SESSION['username'];
 
      /* Carousel Section */
     .carousel-caption h1 {
-      font-size: 2.6rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-
-    .carousel-caption p {
-      font-size: 1.2rem;
-      font-weight: 400;
+      font-size: 2.2rem;
+      }
+    @media (max-width: 576px) {
+      .carousel-caption h1 {
+        font-size: 1.6rem;
+      }
+      .carousel-caption p {
+        font-size: 1rem;
+      }
     }
     /* Cards section below slider */
     section.cards-section {
@@ -189,7 +190,8 @@ $donor_name = $_SESSION['username'];
       display: flex;
       flex-direction: column;  /* Ensures contents stack vertically */
       height: 100%;  /* Ensures all cards are the same height */
-      min-height: 300px; /* Sets a minimum height to maintain consistency */
+      min-height: 220px; /* Sets a minimum height to maintain consistency */
+      justify-content: center;
     }
 
     .row {
@@ -275,6 +277,26 @@ $donor_name = $_SESSION['username'];
       min-height: 240px;
       padding: 20px 15px;
     }
+   .card {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      min-height: 220px;
+    }
+    .col-md-3 {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+    }
+
+    .d-flex {
+      display: flex !important;
+    }
+
+    .flex-fill {
+      flex: 1 1 auto !important;
+    }
 
     /* Responsive */
     @media (max-width: 768px) {
@@ -290,6 +312,25 @@ $donor_name = $_SESSION['username'];
     .card:active p {
       color: #fff !important;
     }
+      @media (max-width: 768px) {
+    .mb-4 {
+      margin-bottom: 20px;
+    }
+  }
+    @media (max-width: 576px) {
+    .container {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  }
+    .card {
+    min-height: 220px;
+  }
+  @media (max-width: 576px) {
+    .card {
+      min-height: 180px;
+    }
+  }
 
   </style>
 </head>
@@ -321,35 +362,43 @@ $donor_name = $_SESSION['username'];
     <h2 class="text-center fw-bold mb-3" style="color:#0d2646;">Apa Yang Anda Boleh Lakukan</h2>
     <div class="row">
       <div class="col-md-3 col-sm-6 mb-4">
+      <div class="card h-100">
         <div class="card text-center p-4 shadow-sm" style="border-radius: 15px;">
           <i class="fas fa-database fa-2x text-primary mb-3"></i>
           <h5 class="font-weight-bold">Saringan Permohonan</h5>
           <p class="text-muted">Lihat permohonan pelajar yang telah diluluskan dan pilih siapa yang ingin anda taja.</p>
         </div>
+        </div>
       </div>
       <div class="col-md-3 col-sm-6 mb-4">
+        <div class="card h-100">
         <div class="card text-center p-4 shadow-sm" style="border-radius: 15px;">
           <i class="fas fa-users fa-2x text-primary mb-3"></i>
           <h5 class="font-weight-bold">Senarai Ditaja</h5>
           <p class="text-muted">Semak senarai pelajar yang telah anda taja beserta maklumat bantuan mereka.</p>
         </div>
+        </div>
       </div>
       <div class="col-md-3 col-sm-6 mb-4">
+        <div class="card h-100">
         <div class="card text-center p-4 shadow-sm" style="border-radius: 15px;">
           <i class="fas fa-chart-bar fa-2x text-primary mb-3"></i>
           <h5 class="font-weight-bold">Statistik Penajaan</h5>
           <p class="text-muted">Lihat statistik penajaan anda mengikut kategori bantuan dan jumlah pelajar ditaja.</p>
         </div>
       </div>
+      </div>
       <div class="col-md-3 col-sm-6 mb-4">
+        <div class="card h-100">
         <div class="card text-center p-4 shadow-sm" style="border-radius: 15px;">
           <i class="fas fa-plus-circle fa-2x text-primary mb-3"></i>
           <h5 class="font-weight-bold">Tambah Bantuan</h5>
           <p class="text-muted">Tambah jenis bantuan dan kuantiti yang anda ingin sumbangkan kepada pelajar memerlukan.</p>
         </div>
       </div>
+      </div>
     </div>
-  </section>
+</section>
 
 <!-- About -->
 <section class="cards-section container kecilkan-card">

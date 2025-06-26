@@ -28,8 +28,17 @@ if (isset($_POST['login'])) {
             $_SESSION['username'] = $user['fld_username'];
             $_SESSION['full_name'] = $user['fld_name'];
             $_SESSION['user_role'] = $user['fld_role'];
+            $_SESSION['user_email'] = $user['fld_email'];
+
 
             $redirect = $user['fld_role'] === 'pentadbir' ? 'dashboard_pentadbir.php' : 'dashboard_penderma.php';
+
+            $sessionId = session_id();
+            $stmt = $conn->prepare("UPDATE tbl_users SET fld_session_id = :sid WHERE fld_username = :username");
+            $stmt->bindParam(':sid', $sessionId);
+            $stmt->bindParam(':username', $_SESSION['username']);
+            $stmt->execute();
+            
             header("Location: $redirect");
             exit();
         } else {

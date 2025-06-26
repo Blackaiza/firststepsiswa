@@ -9,12 +9,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'pentadbir') {
     exit();
 }
 
-// Handle inventory updates (increase or decrease quantity)
 if (isset($_GET['action']) && isset($_GET['id'])) {
     $item_id = $_GET['id'];
     $action = $_GET['action'];
 
-    // Check the current quantity in the inventory
     $checkQuery = "SELECT fld_quantity FROM tbl_inventory WHERE fld_item_id = ?";
     $checkStmt = $conn->prepare($checkQuery);
     $checkStmt->bind_param("i", $item_id);
@@ -22,12 +20,10 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
     $result = $checkStmt->get_result();
     $inventory = $result->fetch_assoc();
 
-    // Update the inventory based on the action
     if ($inventory) {
         $currentQuantity = $inventory['fld_quantity'];
         $newQuantity = ($action === 'tambah') ? $currentQuantity + 1 : ($currentQuantity > 0 ? $currentQuantity - 1 : $currentQuantity);
         
-        // Update inventory
         $updateQuery = "UPDATE tbl_inventory SET fld_quantity = ? WHERE fld_item_id = ?";
         $updateStmt = $conn->prepare($updateQuery);
         $updateStmt->bind_param("ii", $newQuantity, $item_id);
@@ -38,7 +34,7 @@ if (isset($_GET['action']) && isset($_GET['id'])) {
         echo json_encode(["status" => "error", "message" => "Stok tidak wujud!"]);
     }
 
-    exit(); // Stop further script execution
+    exit(); 
 }
 
 // Query to get inventory and donor info

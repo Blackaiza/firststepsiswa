@@ -2,7 +2,6 @@
 session_start();
 include_once 'database.php';
 
-// Ensure logged-in student can access the page
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'pelajar') {
     header("Location: login_pelajar.php");
     exit();
@@ -10,7 +9,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'pelajar') {
 
 $user_id = $_SESSION['user_id']; // Student's user ID
 
-// Query to get the most recent request and donor details (if any)
 $query = "
     SELECT r.*, u.fld_name AS donor_name
     FROM tbl_requests r
@@ -134,7 +132,7 @@ $data = mysqli_fetch_assoc($result);
               echo "Tahniah, permohonan anda diluluskan dan sedang disaring oleh penderma.";
               break;
             case 'ditolak':
-              echo "Maaf, permohonan anda ditolak.";
+              echo "Maaf, permohonan anda ditolak. Anda tidak memenuhi syarat kelayakan yang ditetapkan. Hubungi pihak pentadbir jika ada sebarang masalah.";
               break;
             case 'berjaya':
               echo "Tahniah, permohonan anda diluluskan.";

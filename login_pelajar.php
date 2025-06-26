@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 if (isset($_SESSION['user_id']) && $_SESSION['user_role'] === 'pelajar') {
     header("Location: dashboard_pelajar.php");
     exit();
@@ -30,6 +31,12 @@ if (isset($_POST['login'])) {
             $_SESSION['user_email'] = $user['fld_email'];
             $_SESSION['user_phone'] = $user['fld_phone'];
         
+            $sessionId = session_id();
+            $stmt = $conn->prepare("UPDATE tbl_users SET fld_session_id = :sid WHERE fld_username = :username");
+            $stmt->bindParam(':sid', $sessionId);
+            $stmt->bindParam(':username', $_SESSION['username']);
+            $stmt->execute();
+            
             header("Location: dashboard_pelajar.php");
             exit();
 

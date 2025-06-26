@@ -28,7 +28,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit();
     }
 
-    // Check if username already exists
     $checkUsername = $conn->prepare("SELECT COUNT(*) FROM tbl_users WHERE fld_username = ?");
     $checkUsername->bind_param("s", $username);
     $checkUsername->execute();
@@ -36,13 +35,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $row = $checkUsernameResult->fetch_row();
 
     if ($row[0] > 0) {
-        // Display error message if username is taken
         $_SESSION['error'] = "Penderma telah didaftarkan";
-        echo "<script>window.history.back();</script>";
+        echo "<script>window.location.href = 'daftar_penderma.php';</script>";
         exit();
     }
 
-    // Insert user into tbl_users if username is unique
     $insertUser = $conn->prepare("INSERT INTO tbl_users (fld_name, fld_username, fld_email, fld_phone, fld_password, fld_role) 
                                   VALUES (?, ?, ?, ?, ?, 'penderma')");
     $insertUser->bind_param("sssss", $name, $username, $email, $phone, $password);
@@ -50,29 +47,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($insertUser->execute()) {
         $newUserId = $insertUser->insert_id;
 
-        // Insert donations into tbl_donations
         $stmtDonation = $conn->prepare("INSERT INTO tbl_donations (fld_donor_id, fld_category, fld_quantity, fld_donation_date) VALUES (?, ?, ?, NOW())");
 
-        // Loop through the donations
         for ($i = 0; $i < count($bantuanList); $i++) {
             $category = $bantuanList[$i];
             $quantity = (int)$kuantitiList[$i];
             $stmtDonation->bind_param("isi", $newUserId, $category, $quantity);
             $stmtDonation->execute();
 
-            // Update inventory (add the donation quantity to inventory)
             $checkInventoryStmt = $conn->prepare("SELECT fld_quantity FROM tbl_inventory WHERE fld_category = ?");
             $checkInventoryStmt->bind_param("s", $category);
             $checkInventoryStmt->execute();
             $checkInventoryStmt->store_result();
 
             if ($checkInventoryStmt->num_rows > 0) {
-                // If item exists in inventory, update the quantity
                 $updateInventoryStmt = $conn->prepare("UPDATE tbl_inventory SET fld_quantity = fld_quantity + ? WHERE fld_category = ?");
                 $updateInventoryStmt->bind_param("is", $quantity, $category);
                 $updateInventoryStmt->execute();
             } else {
-                // If item doesn't exist, insert a new entry in inventory
                 $insertInventoryStmt = $conn->prepare("INSERT INTO tbl_inventory (fld_category, fld_quantity, fld_donor_id, fld_last_updated) VALUES (?, ?, ?, NOW())");
                 $insertInventoryStmt->bind_param("sis", $category, $quantity, $newUserId);
                 $insertInventoryStmt->execute();
@@ -81,12 +73,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         echo "<script>alert('Pendaftaran berjaya! Penajaan baru telah ditambah dan inventori dikemaskini.'); window.location.href='daftar_penderma.php';</script>";
     } else {
-        echo "<script>alert('Ralat semasa mendaftar penderma!'); window.history.back();</script>";
+        echo "<script>alert('Ralat semasa mendaftar penderma!'); window.location.href = 'daftar_penderma.php';</script>";
     }
 }
 
 ?>
-
 <!DOCTYPE html>
 <html lang="ms">
 <head>
@@ -170,27 +161,39 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <form method="POST" action="proses_daftar_penderma.php">
       <div class="form-group">
           <label class="form-label">Nama Organisasi</label>
-          <input type="text" name="name" class="form-control" required placeholder="Contoh: Yayasan XYZ">
+          <input type="text" name="name" class="form-control" required placeholder="Contoh: Yayasan XYZ"
+                 minlength="3" maxlength="100" />
       </div>
       <div class="form-group">
           <label class="form-label">Nama pengguna</label>
-          <input type="text" name="username" class="form-control" required placeholder="Contoh: pengguna123">
+          <input type="text" name="username" class="form-control" required placeholder="Contoh: pengguna123"
+                 minlength="4" maxlength="20" pattern="^[a-zA-Z0-9_]+$" title="Nama pengguna hanya boleh mengandungi huruf, nombor, dan garis bawah (_)" />
       </div>
       <div class="form-group">
-          <label class="form-label">Email</label>
-          <input type="email" name="email" class="form-control" required placeholder="Contoh: email@domain.com">
-      </div>
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-control" required placeholder="Contoh: email@domain.com"
+            pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" 
+            title="Sila masukkan e-mel yang sah dengan simbol '@' dan domain yang valid." />
+    </div>
       <div class="form-group">
           <label class="form-label">No Telefon</label>
-          <input type="text" name="phone" class="form-control" required placeholder="Contoh: 01123456789">
+          <input type="text" name="phone" class="form-control" required placeholder="Contoh: 01123456789"
+                 pattern="^01[0-9]{7,8}$" title="Masukkan nombor telefon Malaysia yang sah, contoh: 0123456789" />
       </div>
       <div class="form-group">
           <label class="form-label">Kata Laluan</label>
-          <input type="password" name="password" class="form-control" required placeholder="Masukkan kata laluan">
+      <input type="password" id="password" name="password" class="form-control" required placeholder="Masukkan kata laluan"
+             minlength="6" maxlength="20" pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,20}$" 
+             title="Kata laluan mesti 6–20 aksara, sekurang-kurangnya satu huruf dan satu nombor." />
+      <input type="checkbox" onclick="togglePassword('password')"> Tunjuk Kata Laluan
       </div>
       <div class="form-group">
-          <label class="form-label">Pengesahan Kata Laluan</label>
-          <input type="password" name="confirm_password" class="form-control" required placeholder="Sahkan kata laluan">
+           <label class="form-label">Pengesahan Kata Laluan</label>
+      <input type="password" id="confirm_password" name="confirm_password" class="form-control" required placeholder="Sahkan kata laluan"
+             minlength="6" maxlength="20" pattern="^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,20}$" 
+             title="Masukkan semula kata laluan dengan betul." />
+      <input type="checkbox" onclick="togglePassword('confirm_password')"> Tunjuk Kata Laluan
+
       </div>
 
       <hr>
@@ -210,16 +213,32 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                   </select>
               </div>
               <div class="col-md-4">
-                  <input type="number" name="kuantiti[]" class="form-control" placeholder="Kuantiti" required>
+                  <input type="number" name="kuantiti[]" class="form-control" placeholder="Kuantiti" required min="1" />
               </div>
           </div>
       </div>
       <button type="button" class="btn btn-default btn-add" onclick="addBantuan()">+ Tambah Jenis Bantuan</button>
 
       <button type="submit" class="btn btn-primary btn-submit">Daftar</button>
+
     </form>
   </div>
 </div>
+
+<script>
+function togglePassword(fieldId) {
+    var passwordField = document.getElementById(fieldId);
+
+    // Toggle the password visibility
+    if (passwordField.type === "password") {
+        passwordField.type = "text";
+    } else {
+        passwordField.type = "password";
+    }
+}
+
+
+</script>
 
 <script>
     function addBantuan() {
@@ -240,12 +259,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </select>
             </div>
             <div class="col-md-4">
-                <input type="number" name="kuantiti[]" class="form-control" placeholder="Kuantiti" required>
+                <input type="number" name="kuantiti[]" class="form-control" placeholder="Kuantiti" required min="1">
             </div>
         `;
         wrapper.appendChild(row);
     }
 </script>
+
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js"></script>
