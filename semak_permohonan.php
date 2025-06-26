@@ -16,8 +16,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'penderma') {
     exit();
 }
 
-include 'nav_bar_nu.php';
-
 try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -221,6 +219,8 @@ if (isset($_POST['taja'])) {
   </style>
 </head>
 <body>
+
+include 'nav_bar_nu.php';
 
 <div class="container">
   
