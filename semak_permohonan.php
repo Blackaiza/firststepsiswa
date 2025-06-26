@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 require 'PHPMailer-master/src/PHPMailer.php';
 require 'PHPMailer-master/src/SMTP.php';
 require 'PHPMailer-master/src/Exception.php';
@@ -6,7 +8,6 @@ require 'PHPMailer-master/src/Exception.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-session_start();
 include('database.php');
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
@@ -17,8 +18,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'penderma') {
 
 include 'nav_bar_nu.php';
 
-$conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
-$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+try {
+    $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
+}
 
 $request_id = $_GET['id'] ?? null;
 
