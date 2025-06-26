@@ -131,7 +131,7 @@ if (isset($_POST['taja'])) {
 <head>
   <meta charset="UTF-8">
   <title>Perincian Permohonan Bantuan Pelajar</title>
-  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     body {
