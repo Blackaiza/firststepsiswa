@@ -220,7 +220,7 @@ if (isset($_POST['taja'])) {
 </head>
 <body>
 
-include 'nav_bar_nu.php';
+<?php include 'nav_bar_nu.php'; ?>
 
 <div class="container">
   
